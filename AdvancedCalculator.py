@@ -1,8 +1,10 @@
 import math
+import re
 
 class AdvancedCalculator:
     name = "MyAdvancedPythonCalculator"
     mem = {}
+    hist = [0]
 
     def __init__(self, name):
         self.name = name
@@ -11,39 +13,61 @@ class AdvancedCalculator:
         return self.name
     
     def recursiveCalculation(self, calculation):
-        if calculation.startswith("sin"):
-            start = calculation.find("(")
-            end = calculation.find(")")
-            if start != -1 and end != -1:
-                return math.sin(self.recursiveCalculation(calculation[start+1:end]))
-            else:
-                print(f"ERROR! {self.name} didn't understand `{calculation}`. You need to provide brackets.")
-                return 0
-        elif calculation.startswith("cos"):
-            start = calculation.find("(")
-            end = calculation.find(")")
-            if start != -1 and end != -1:
-                return math.cos(self.recursiveCalculation(calculation[start+1:end]))
-            else:
-                print(f"ERROR! {self.name} didn't understand `{calculation}`. You need to provide brackets.")
-                return 0
-        elif calculation.startswith("tan"):
-            start = calculation.find("(")
-            end = calculation.find(")")
-            if start != -1 and end != -1:
-                return math.tan(self.recursiveCalculation(calculation[start+1:end]))
-            else:
-                print(f"ERROR! {self.name} didn't understand `{calculation}`. You need to provide brackets.")
-                return 0
-        else:
-            try:
-                return float (calculation)
-            except ValueError:
-                print(f"ERROR! {self.name} didn't understand `{calculation}`.")
-                return 0 
+        # regex = re.compile(r"\b(?P<single>[a-zA-Z0-9]+)\b")
+
+        regex = re.compile(r"(?P<first>[a-zA-Z0-9,.]+)\s*(?P<op>|\+|-|\*|/|%)\s*(?P<second>[a-zA-Z0-9.,]+)")
+        group = regex.search(calculation)
+        try:
+            op = group.group("op")
+            first = float(group.group("first"))
+            second = float(group.group("second"))
+            if op == "+":
+                return first + second
+            elif op == "-":
+                return first - second
+            elif op == "*":
+                return first * second
+            elif op == "/":
+                return first / second
+            elif op == "%":
+                return first % second
+        except AttributeError or ValueError: # a group is unknown
+            print("ERROR!")
+
+        # if groups.group("op") == "+":
+        #     print(groups.groupdict())
+        #     return self.recursiveCalculation(groups.group("single")) + self.recursiveCalculation(groups.group("single"))
+        # else:
+        #     return int (groups.group("single"))
+
+            # (?P<first>[a-zA-Z0-9]+)\s*(?P<op>(|\+|-|\*|/))\s*(?P<second>[a-zA-Z0-9]+)
+
+            # (?P<single>([a-zA-Z0-9]+))\s*|(?P<first>[a-zA-Z0-9]+)\s*(?P<op>(|\+|-|\*|/))\s*(?P<second>[a-zA-Z0-9]+)
+
+            # \s*(?P<single>[a-zA-Z0-9]+)\s* *(?P<op>[+|-|*|/])*
+
+
+    def saveVar(self, calculation):
+        varName = calculation[(len("saveAs ")):]
+        self.mem[varName] = self.hist[len(self.hist)-1]
 
     def calc(self, calculation):
         if calculation == "help":
-            print("All possibilities")
+            print("All commands")
+            print("  - `help`")
+            print("  - `quit`")
+            print("  - `saveAs [var]`; where `var` is the variable name")
+            print("  - `erase`")
+        elif calculation.startswith("saveAs "):
+            self.saveVar(calculation)
+        elif calculation == "erase":
+            self.mem.clear()
+            self.hist.clear()
         else:
-            print(self.recursiveCalculation(calculation))
+            self.hist.append(self.recursiveCalculation(calculation))
+            print(self.hist)
+
+
+# regex:
+
+### (?P<prefix>[\S]*)+sin?\s\((?P<sincontent>[0-9]*)\)(\s(?P<appendix>[\S]*))*

@@ -1,8 +1,8 @@
 ### main.py ###
 
 ### Author: Thijs Dregmans 
-### Last edited on: 2023-11-15
-### Version: 1.0
+### Last edited on: 2023-11-17
+### Version: 1.1
 
 ### Goal: to learn more about OOP Python 
 ### and to complete the introduction course.
