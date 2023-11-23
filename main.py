@@ -23,10 +23,10 @@ def main():
     print("####################################################")
 
 
-    text = input(">")
+    text = input(">  ")
     while text != "quit":
         calculator.calc(text)
-        text = input(">")
+        text = input(">  ")
 
 if __name__ == "__main__":
     main()
