@@ -13,7 +13,7 @@ class AdvancedCalculator:
         return self.name
     
     def simpleCalculation(self, calculation):
-        regex = re.compile(r"(?P<first>-?[a-zA-Z0-9,.]+)\s*((?P<op>|\+|-|\*|/|%)\s*(?P<second>-?[a-zA-Z0-9.,]+))?")
+        regex = re.compile(r"(?P<first>-?[a-zA-Z0-9,.]+)\s*((?P<op>|\+|-|\*|/|%|\^)\s*(?P<second>-?[a-zA-Z0-9.,]+))?")
         group = regex.search(calculation)
         try:
             op = group.group("op")
@@ -29,6 +29,8 @@ class AdvancedCalculator:
                 return first / second
             elif op == "%":
                 return first % second
+            elif op == "^":
+                return first ** second
         except: # `op` - or `second` - group is unkown -> This means `first` is a single
             return group.group("first")
         
