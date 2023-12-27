@@ -304,6 +304,8 @@ class World:
             self.screen.update ()
             tm.sleep (0.02)
 
+####################################################################################
+
 # Run world
 world = World ()
 world.run ()
