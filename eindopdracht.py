@@ -163,14 +163,12 @@ class Car:
             # close to the end of the road -> put car on new road
             self.__roadPointer += 1
 
-            if self.__roadPointer >= len(track.roads) - 1:
+            if self.__roadPointer > len(track.roads) - 1:
                 # reset roadPointer if it points to the last road
                 self.__roadPointer = 0
-                startOfNewRoad = track.roads[self.__roadPointer][0]
-            else:
-                startOfNewRoad = track.roads[self.__roadPointer + 1][0]
             
             print("put on new road")
+            startOfNewRoad = track.roads[self.__roadPointer][0]
             self.__position = startOfNewRoad
         else:
             # on normal road
