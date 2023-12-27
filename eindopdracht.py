@@ -1,17 +1,34 @@
-####
+####################################################################################
 #### Eindopdracht
 #### `Les 7`/`Eindopdracht.py`
 ####
 #### Thijs Dregmans 
-#### Gemaakt op 2023-12-27
+#### Gemaakt op 2023-12-28
 #### 
 #### Zie http://wiztech.nl/module_inleiding_programmeren_in_python/les_7_object_modellering/overig_lesmateriaal/eindopdracht/eindopdracht.pdf voor beschrijving
 ####
 
-# libaries
+####################################################################################
+
+# Libaries
 import math
 import time as tm
 import turtle as tr
+
+# Constants and Settings
+
+ENABLE_FLYING_OF_TRACK = True
+
+DEFAULT_TRACK_SIZE = 30
+DEFAULT_TRACK_COORDS = [(-250, 250), (250, 250), (250, -250), (-250, -250)]
+
+CORNER_MARGIN = 10
+
+MAX_SPEED = 30
+MAX_SPEED_IN_CORNER = 10
+MAX_ACCELERATION = 10
+
+# Help functions
 
 def getOrientationRoad(road):
     point1 = road[1]
@@ -25,16 +42,7 @@ def getOrientationRoad(road):
 def getDistanceBetween(point1, point2):
     return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
-ENABLE_FLYING_OF_TRACK = True
-
-DEFAULT_TRACK_SIZE = 30
-DEFAULT_TRACK_COORDS = [(-250, 250), (250, 250), (250, -250), (-250, -250)]
-
-CORNER_MARGIN = 10
-
-MAX_SPEED = 30
-MAX_SPEED_IN_CORNER = 10
-MAX_ACCELERATION = 10
+####################################################################################
 
 class Car:
     def __init__(self, color):
@@ -199,7 +207,8 @@ class Car:
     def draw(self):
         self.turtle.goto(self.getPosition())
 
-### Track class
+####################################################################################
+
 class Track:
     def __init__(self, name, trackCoordinates):
         self.name = name
@@ -235,6 +244,8 @@ class Track:
         turtle.up()
         turtle.home()
         turtle.pensize(defaultPensize)
+
+####################################################################################
 
 class World:
     def __init__ (self):
@@ -276,13 +287,11 @@ class World:
             car.goto(self.track.corners[0]) # go to start (first point in track)
         
         while True:
-            # BEGIN mandatory statements
+            # get deltaTime
             self.oldTime = self.time
             self.time = tm.time ()
             self.deltaTime = self.time - self.oldTime
-            # END mandatory statements
 
-            
             for car in self.cars:
                 print(f"{car.getColor()} car position: {car.getPosition()}")
                 print(f"{car.getColor()} car speed: {car.getSpeed()}")
@@ -295,5 +304,6 @@ class World:
             self.screen.update ()
             tm.sleep (0.02)
 
+# Run world
 world = World ()
 world.run ()
