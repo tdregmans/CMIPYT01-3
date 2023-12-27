@@ -20,7 +20,7 @@ import turtle as tr
 ENABLE_FLYING_OF_TRACK = True
 
 DEFAULT_TRACK_SIZE = 30
-DEFAULT_TRACK_COORDS = [(-250, 250), (250, 250), (250, -250), (-250, -250)]
+DEFAULT_TRACK_COORDS = [(-250, 0), (250, 0)]
 
 CORNER_MARGIN = 10
 
@@ -239,6 +239,15 @@ class Track:
         for corner in self.corners:
             turtle.goto(corner[0], corner[1])
             turtle.down()
+
+        
+        # draw finish line
+        turtle.up()
+        turtle.goto(self.corners[0][0], self.corners[0][1] - (DEFAULT_TRACK_SIZE / 2))
+        turtle.down()
+        turtle.color('yellow')
+        turtle.pensize(DEFAULT_TRACK_SIZE / 5)
+        turtle.goto(self.corners[0][0], self.corners[0][1] + (DEFAULT_TRACK_SIZE / 2))
         
         # reset pen
         turtle.up()
@@ -303,6 +312,8 @@ class World:
             print (self.deltaTime)
             self.screen.update ()
             tm.sleep (0.02)
+
+####################################################################################
 
 # Run world
 world = World ()
