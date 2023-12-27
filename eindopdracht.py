@@ -25,12 +25,15 @@ def getOrientationRoad(road):
 def getDistanceBetween(point1, point2):
     return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
+ENABLE_FLYING_OF_TRACK = True
+
 DEFAULT_TRACK_SIZE = 30
 DEFAULT_TRACK_COORDS = [(-250, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
 
 MAX_SPEED = 30
+MAX_SPEED_IN_CORNER = 10
 MAX_ACCELERATION = 10
 
 class Car:
@@ -160,16 +163,22 @@ class Car:
 
         endOfRoad = track.roads[self.__roadPointer][1]
         if getDistanceBetween(self.__position, endOfRoad) <= CORNER_MARGIN:
-            # close to the end of the road -> put car on new road
-            self.__roadPointer += 1
+            # close to the end of the road, so put car on next road
+            if ENABLE_FLYING_OF_TRACK and self.__speed > MAX_SPEED_IN_CORNER:
+                # car has flown of the track
+                # idea: make the MAX_SPEED_IN_CORNER dependent on the angle of the two roads
+                print("Car went off road!") # Car stops on the track
+            else:
+                self.__roadPointer += 1
 
-            if self.__roadPointer > len(track.roads) - 1:
-                # reset roadPointer if it points to the last road
-                self.__roadPointer = 0
-            
-            print("put on new road")
-            startOfNewRoad = track.roads[self.__roadPointer][0]
-            self.__position = startOfNewRoad
+                if self.__roadPointer > len(track.roads) - 1:
+                    # reset roadPointer if it points to the last road
+                    self.__roadPointer = 0
+                
+                print("put on new road")
+                startOfNewRoad = track.roads[self.__roadPointer][0]
+                self.__position = startOfNewRoad
+
         else:
             # on normal road
             # Calculate nex position on road
