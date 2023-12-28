@@ -1,4 +1,4 @@
-# CMIPYT01
+# CMIPYT01-3
 
 Python - intro object georienteerd programmeren
 *Originally cloned from [tdregmans/AdvancedCalculator](https://github.com/tdregmans/AdvancedCalculator)*
