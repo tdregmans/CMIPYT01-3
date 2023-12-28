@@ -19,7 +19,7 @@ import turtle as tr
 
 ENABLE_FLYING_OF_TRACK = True
 
-DEFAULT_TRACK_SIZE = 30
+DEFUALT_CAR_SIZE = 10
 DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (100, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
@@ -230,12 +230,14 @@ class Track:
         for road in self.roads:
             self.__length += getDistanceBetween(road[0], road[1])
 
-    def draw(self, turtle):
+    def draw(self, turtle, noOfCars):
         defaultPensize = turtle.pensize()
+
+        trackSize = noOfCars * (DEFUALT_CAR_SIZE + 5)
         turtle.speed('fastest')
 
         turtle.up()
-        turtle.pensize(DEFAULT_TRACK_SIZE)
+        turtle.pensize(trackSize)
         for corner in self.corners:
             turtle.goto(corner[0], corner[1])
             turtle.down()
@@ -248,7 +250,7 @@ class Track:
 ####################################################################################
 
 class World:
-    def __init__ (self):
+    def __init__ (self, cars):
         self.screen = tr.Screen ()
         self.screen.listen ()
         self.screen.onkey (self.accelerateCar1, 'a')
@@ -259,9 +261,10 @@ class World:
 
         self.turtle = tr.Turtle()
 
+        self.cars = cars
+
         self.track = Track("Main track", DEFAULT_TRACK_COORDS)
 
-        self.cars = [Car("red"), Car("blue")]
 
         for car in self.cars:
             self.screen.register_shape(f'{car.getColor()}Car', car.getShape())
@@ -282,7 +285,7 @@ class World:
     def run (self):
 
         # standard corners
-        self.track.draw(self.turtle)
+        self.track.draw(self.turtle, len(self.cars))
         for car in self.cars:
             car.goto(self.track.corners[0]) # go to start (first point in track)
         
@@ -306,6 +309,8 @@ class World:
 
 ####################################################################################
 
-# Run world
-world = World ()
+# Run world with cars            
+cars = [Car("red"), Car("blue")]
+
+world = World (cars)
 world.run ()
