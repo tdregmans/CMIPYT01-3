@@ -28,6 +28,8 @@ MAX_SPEED = 30
 MAX_SPEED_IN_CORNER = 20
 MAX_ACCELERATION = 10
 
+SCOREBOARD_POSITION = (-250, 250)
+
 # Help functions
 
 def getOrientationRoad(road):
@@ -272,6 +274,30 @@ class Track:
         turtle.pensize(defaultPensize)
 
 ####################################################################################
+
+class Scoreboard:
+    def __init__(self, position):
+        self.__position = position
+
+        self.turtle = tr.Turtle()
+        self.turtle.up()
+
+
+    def draw(self, time):
+        self.turtle.down()
+        self.turtle.clear()
+        self.turtle.goto(self.__position)
+
+        self.turtle.write(
+            str(tm.strftime('%H', time)).zfill(2)
+            + ":"+str(tm.strftime('%M', time)).zfill(2)+":"
+            + str(tm.strftime('%S', time)).zfill(2),
+            font=("Arial Narrow", 35, "bold")
+        )
+        
+        self.turtle.up()
+
+####################################################################################
         
 def f():
     print("TEST")
@@ -303,6 +329,8 @@ class World:
             tm.sleep(0.1)
 
         self.track.setup()
+
+        self.scoreboard = Scoreboard(SCOREBOARD_POSITION)
 
     def trackIsSetup(self):
         self.isSetUp = True
@@ -349,6 +377,8 @@ class World:
 
                 car.drive(self.track, self.deltaTime)
                 car.draw()
+
+                self.scoreboard.draw(tm.localtime())
 
             print (self.deltaTime)
             self.screen.update ()
