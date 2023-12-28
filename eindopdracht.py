@@ -19,7 +19,8 @@ import turtle as tr
 
 ENABLE_FLYING_OF_TRACK = True
 
-DEFUALT_CAR_SIZE = 10
+DEFAULT_CAR_SIZE = 10
+CAR_TRACK_MARGIN = 5
 DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (100, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
@@ -56,7 +57,7 @@ class Car:
 
         self.turtle = tr.Turtle(visible=False)
 
-    def getShape(self):
+    def getShape(self, id):
         
         shape = tr.Shape('compound')
 
@@ -65,55 +66,60 @@ class Car:
         turtle.speed('fastest')
         turtle.penup()
 
+        if id == 0:
+            transformation = (DEFAULT_CAR_SIZE - (CAR_TRACK_MARGIN / 2)) 
+        elif id == 1:
+            transformation =  -1 * (DEFAULT_CAR_SIZE - (CAR_TRACK_MARGIN / 2))
+
         # car silhouette
-        turtle.goto(-20, -5)
+        turtle.goto(-20, -5 + transformation)
         turtle.begin_poly()
-        turtle.goto(-20, 5)
-        turtle.goto(10, 5)
-        turtle.goto(10, -5)
-        turtle.goto(-20, -5)
+        turtle.goto(-20, 5 + transformation)
+        turtle.goto(10, 5 + transformation)
+        turtle.goto(10, -5 + transformation)
+        turtle.goto(-20, -5 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), self.__color)
 
         # car roof
-        turtle.goto(-10, -4)
+        turtle.goto(-10, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(-10, 4)
-        turtle.goto(5, 4)
-        turtle.goto(5, -4)
-        turtle.goto(-10, -4)
+        turtle.goto(-10, 4 + transformation)
+        turtle.goto(5, 4 + transformation)
+        turtle.goto(5, -4 + transformation)
+        turtle.goto(-10, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), f'dark{self.__color}')
 
         # car front window
-        turtle.goto(0, -4)
+        turtle.goto(0, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(0, 4)
-        turtle.goto(5, 4)
-        turtle.goto(5, -4)
-        turtle.goto(0, -4)
+        turtle.goto(0, 4 + transformation)
+        turtle.goto(5, 4 + transformation)
+        turtle.goto(5, -4 + transformation)
+        turtle.goto(0, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'lightblue')
 
         # car back window
-        turtle.goto(-15, -4)
+        turtle.goto(-15, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(-15, 4)
-        turtle.goto(-12, 4)
-        turtle.goto(-12, -4)
-        turtle.goto(-15, -4)
+        turtle.goto(-15, 4 + transformation)
+        turtle.goto(-12, 4 + transformation)
+        turtle.goto(-12, -4 + transformation)
+        turtle.goto(-15, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'lightblue')
 
         # car headlight 1
-        turtle.goto(10, -6)
+        turtle.goto(10, -6 + transformation)
         turtle.begin_poly()
         turtle.circle(2)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'yellow')
 
         # car headlight 2
-        turtle.goto(10, 2)
+        turtle.goto(10, 2 + transformation)
         turtle.begin_poly()
         turtle.circle(2)
         turtle.end_poly()
@@ -233,7 +239,7 @@ class Track:
     def draw(self, turtle, noOfCars):
         defaultPensize = turtle.pensize()
 
-        trackSize = noOfCars * (DEFUALT_CAR_SIZE + 5)
+        trackSize = noOfCars * (DEFAULT_CAR_SIZE + CAR_TRACK_MARGIN)
         turtle.speed('fastest')
 
         turtle.up()
@@ -266,8 +272,9 @@ class World:
         self.track = Track("Main track", DEFAULT_TRACK_COORDS)
 
 
-        for car in self.cars:
-            self.screen.register_shape(f'{car.getColor()}Car', car.getShape())
+        for id in range(len(self.cars)):
+            car = self.cars[id]
+            self.screen.register_shape(f'{car.getColor()}Car', car.getShape(id))
             car.assignShape()
         
     def accelerateCar1 (self):
