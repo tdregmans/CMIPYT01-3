@@ -19,13 +19,14 @@ import turtle as tr
 
 ENABLE_FLYING_OF_TRACK = True
 
-DEFAULT_TRACK_SIZE = 30
-DEFAULT_TRACK_COORDS = [(-250, 0), (250, 0)]
+DEFAULT_CAR_SIZE = 10
+CAR_TRACK_MARGIN = 5
+DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (100, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
 
 MAX_SPEED = 30
-MAX_SPEED_IN_CORNER = 10
+MAX_SPEED_IN_CORNER = 20
 MAX_ACCELERATION = 10
 
 # Help functions
@@ -56,7 +57,7 @@ class Car:
 
         self.turtle = tr.Turtle(visible=False)
 
-    def getShape(self):
+    def getShape(self, id):
         
         shape = tr.Shape('compound')
 
@@ -65,55 +66,60 @@ class Car:
         turtle.speed('fastest')
         turtle.penup()
 
+        if id == 0:
+            transformation = (DEFAULT_CAR_SIZE - (CAR_TRACK_MARGIN / 2)) 
+        elif id == 1:
+            transformation =  -1 * (DEFAULT_CAR_SIZE - (CAR_TRACK_MARGIN / 2))
+
         # car silhouette
-        turtle.goto(-20, -5)
+        turtle.goto(-20, -5 + transformation)
         turtle.begin_poly()
-        turtle.goto(-20, 5)
-        turtle.goto(10, 5)
-        turtle.goto(10, -5)
-        turtle.goto(-20, -5)
+        turtle.goto(-20, 5 + transformation)
+        turtle.goto(10, 5 + transformation)
+        turtle.goto(10, -5 + transformation)
+        turtle.goto(-20, -5 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), self.__color)
 
         # car roof
-        turtle.goto(-10, -4)
+        turtle.goto(-10, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(-10, 4)
-        turtle.goto(5, 4)
-        turtle.goto(5, -4)
-        turtle.goto(-10, -4)
+        turtle.goto(-10, 4 + transformation)
+        turtle.goto(5, 4 + transformation)
+        turtle.goto(5, -4 + transformation)
+        turtle.goto(-10, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), f'dark{self.__color}')
 
         # car front window
-        turtle.goto(0, -4)
+        turtle.goto(0, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(0, 4)
-        turtle.goto(5, 4)
-        turtle.goto(5, -4)
-        turtle.goto(0, -4)
+        turtle.goto(0, 4 + transformation)
+        turtle.goto(5, 4 + transformation)
+        turtle.goto(5, -4 + transformation)
+        turtle.goto(0, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'lightblue')
 
         # car back window
-        turtle.goto(-15, -4)
+        turtle.goto(-15, -4 + transformation)
         turtle.begin_poly()
-        turtle.goto(-15, 4)
-        turtle.goto(-12, 4)
-        turtle.goto(-12, -4)
-        turtle.goto(-15, -4)
+        turtle.goto(-15, 4 + transformation)
+        turtle.goto(-12, 4 + transformation)
+        turtle.goto(-12, -4 + transformation)
+        turtle.goto(-15, -4 + transformation)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'lightblue')
 
         # car headlight 1
-        turtle.goto(10, -6)
+        turtle.goto(10, -6 + transformation)
         turtle.begin_poly()
         turtle.circle(2)
         turtle.end_poly()
         shape.addcomponent(turtle.get_poly(), 'yellow')
 
         # car headlight 2
-        turtle.goto(10, 2)
+        turtle.goto(10, 2 + transformation)
         turtle.begin_poly()
         turtle.circle(2)
         turtle.end_poly()
@@ -176,6 +182,13 @@ class Car:
                 # car has flown of the track
                 # idea: make the MAX_SPEED_IN_CORNER dependent on the angle of the two roads
                 print("Car went off road!") # Car stops on the track
+                angle = math.radians(roadOrientation)
+                radius = self.__speed * deltaTime
+
+                dx = (radius * math.cos(angle))
+                dy = (radius * math.sin(angle))
+
+                self.__position = (self.__position[0] + dy, self.__position[1] - dx)
             else:
                 self.__roadPointer += 1
 
@@ -230,12 +243,14 @@ class Track:
         for road in self.roads:
             self.__length += getDistanceBetween(road[0], road[1])
 
-    def draw(self, turtle):
+    def draw(self, turtle, noOfCars):
         defaultPensize = turtle.pensize()
+
+        trackSize = noOfCars * (DEFAULT_CAR_SIZE + CAR_TRACK_MARGIN)
         turtle.speed('fastest')
 
         turtle.up()
-        turtle.pensize(DEFAULT_TRACK_SIZE)
+        turtle.pensize(trackSize)
         for corner in self.corners:
             turtle.goto(corner[0], corner[1])
             turtle.down()
@@ -257,9 +272,10 @@ class Track:
 ####################################################################################
 
 class World:
-    def __init__ (self):
+    def __init__ (self, cars):
         self.screen = tr.Screen ()
         self.screen.listen ()
+        self.screen.bgpic('grass.png')
         self.screen.onkey (self.accelerateCar1, 'a')
         self.screen.onkey (self.decelerateCar1, 'z')
         self.screen.onkey (self.accelerateCar2, 'k')
@@ -268,12 +284,14 @@ class World:
 
         self.turtle = tr.Turtle()
 
+        self.cars = cars
+
         self.track = Track("Main track", DEFAULT_TRACK_COORDS)
 
-        self.cars = [Car("red"), Car("blue")]
 
-        for car in self.cars:
-            self.screen.register_shape(f'{car.getColor()}Car', car.getShape())
+        for id in range(len(self.cars)):
+            car = self.cars[id]
+            self.screen.register_shape(f'{car.getColor()}Car', car.getShape(id))
             car.assignShape()
         
     def accelerateCar1 (self):
@@ -291,7 +309,7 @@ class World:
     def run (self):
 
         # standard corners
-        self.track.draw(self.turtle)
+        self.track.draw(self.turtle, len(self.cars))
         for car in self.cars:
             car.goto(self.track.corners[0]) # go to start (first point in track)
         
@@ -315,6 +333,9 @@ class World:
 
 ####################################################################################
 
-# Run world
-world = World ()
+# Run world with cars            
+cars = [Car("red"), Car("blue")]
+
+world = World (cars)
+
 world.run ()
