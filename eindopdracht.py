@@ -26,7 +26,7 @@ DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (10
 CORNER_MARGIN = 10
 
 MAX_SPEED = 30
-MAX_SPEED_IN_CORNER = 10
+MAX_SPEED_IN_CORNER = 20
 MAX_ACCELERATION = 10
 
 # Help functions
@@ -182,6 +182,13 @@ class Car:
                 # car has flown of the track
                 # idea: make the MAX_SPEED_IN_CORNER dependent on the angle of the two roads
                 print("Car went off road!") # Car stops on the track
+                angle = math.radians(roadOrientation)
+                radius = self.__speed * deltaTime
+
+                dx = (radius * math.cos(angle))
+                dy = (radius * math.sin(angle))
+
+                self.__position = (self.__position[0] + dy, self.__position[1] - dx)
             else:
                 self.__roadPointer += 1
 
