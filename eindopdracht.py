@@ -254,6 +254,15 @@ class Track:
         for corner in self.corners:
             turtle.goto(corner[0], corner[1])
             turtle.down()
+
+        
+        # draw finish line
+        turtle.up()
+        turtle.goto(self.corners[0][0], self.corners[0][1] - (DEFAULT_TRACK_SIZE / 2))
+        turtle.down()
+        turtle.color('yellow')
+        turtle.pensize(DEFAULT_TRACK_SIZE / 5)
+        turtle.goto(self.corners[0][0], self.corners[0][1] + (DEFAULT_TRACK_SIZE / 2))
         
         # reset pen
         turtle.up()
@@ -328,4 +337,5 @@ class World:
 cars = [Car("red"), Car("blue")]
 
 world = World (cars)
+
 world.run ()
