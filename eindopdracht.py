@@ -330,16 +330,15 @@ class World:
 
         self.track.setup()
 
-        self.scoreboard = Scoreboard(SCOREBOARD_POSITION)
-
-    def trackIsSetup(self):
-        self.isSetUp = True
-
-    def setup(self):
         for id in range(len(self.cars)):
             car = self.cars[id]
             self.screen.register_shape(f'{car.getColor()}Car', car.getShape(id))
             car.assignShape()
+
+        self.scoreboard = Scoreboard(SCOREBOARD_POSITION)
+
+    def trackIsSetup(self):
+        self.isSetUp = True
     
     def addCorner(self, x, y):
         self.track.addCorner(x, y)
@@ -390,5 +389,4 @@ class World:
 cars = [Car("red"), Car("blue")]
 
 world = World (cars)
-world.setup ()
 world.run ()
