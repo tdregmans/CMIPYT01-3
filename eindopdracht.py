@@ -266,6 +266,7 @@ class World:
     def __init__ (self, cars):
         self.screen = tr.Screen ()
         self.screen.listen ()
+        self.screen.bgpic('grass.png')
         self.screen.onkey (self.accelerateCar1, 'a')
         self.screen.onkey (self.decelerateCar1, 'z')
         self.screen.onkey (self.accelerateCar2, 'k')
