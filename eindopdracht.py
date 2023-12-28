@@ -21,7 +21,6 @@ ENABLE_FLYING_OF_TRACK = True
 
 DEFAULT_CAR_SIZE = 10
 CAR_TRACK_MARGIN = 5
-DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (100, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
 
@@ -229,17 +228,23 @@ class Car:
 ####################################################################################
 
 class Track:
-    def __init__(self, name, trackCoordinates):
+    def __init__(self, name, trackCoordinates = []):
         self.name = name
         self.corners = []
 
         self.roads = []
 
-        # build track with coords
-        for coord in trackCoordinates:
-            self.corners.append((coord[0], coord[1]))
+        if len(trackCoordinates) > 0:
+            # build track with coords
+            for coord in trackCoordinates:
+                self.corners.append((coord[0], coord[1]))
+    
+    def addCorner(self, x, y):
+        self.corners.append((x, y))
+
+    def setup(self):
         # Add first coord for a second time to close the track
-        self.corners.append((trackCoordinates[0][0], trackCoordinates[0][1]))
+        self.addCorner(self.corners[0][0], self.corners[0][1])
 
         # define roads
         for i in range(len(self.corners) - 1):
@@ -267,9 +272,13 @@ class Track:
         turtle.pensize(defaultPensize)
 
 ####################################################################################
+        
+def f():
+    print("TEST")
 
 class World:
     def __init__ (self, cars):
+        self.isSetUp = False
         self.screen = tr.Screen ()
         self.screen.listen ()
         self.screen.bgpic('grass.png')
@@ -277,19 +286,35 @@ class World:
         self.screen.onkey (self.decelerateCar1, 'z')
         self.screen.onkey (self.accelerateCar2, 'k')
         self.screen.onkey (self.decelerateCar2, 'm')
+
+        self.screen.onkey(self.trackIsSetup, 'Return')
         self.time = tm.time ()
+
+        self.screen.onclick(self.addCorner)
 
         self.turtle = tr.Turtle()
 
         self.cars = cars
 
-        self.track = Track("Main track", DEFAULT_TRACK_COORDS)
+        self.track = Track("Main track")
 
+        while not self.isSetUp:
+            self.screen.update ()
+            tm.sleep(0.1)
 
+        self.track.setup()
+
+    def trackIsSetup(self):
+        self.isSetUp = True
+
+    def setup(self):
         for id in range(len(self.cars)):
             car = self.cars[id]
             self.screen.register_shape(f'{car.getColor()}Car', car.getShape(id))
             car.assignShape()
+    
+    def addCorner(self, x, y):
+        self.track.addCorner(x, y)
         
     def accelerateCar1 (self):
         self.cars[0].accelerate()
@@ -335,5 +360,5 @@ class World:
 cars = [Car("red"), Car("blue")]
 
 world = World (cars)
-
+world.setup ()
 world.run ()
