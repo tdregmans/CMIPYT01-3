@@ -217,8 +217,14 @@ class Car:
         self.turtle.shape(f'{self.__color}Car')
         self.turtle.showturtle()
     
-    def draw(self):
+    def draw(self, leaveTrail = True):
+        if not leaveTrail:
+            self.turtle.up()
+
         self.turtle.goto(self.getPosition())
+        
+        if not leaveTrail:
+            self.turtle.down()
 
 ####################################################################################
 
@@ -303,6 +309,7 @@ class World:
         self.track.draw(self.turtle, len(self.cars))
         for car in self.cars:
             car.goto(self.track.corners[0]) # go to start (first point in track)
+            car.draw(leaveTrail = False)
         
         while True:
             # get deltaTime
