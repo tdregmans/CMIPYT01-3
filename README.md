@@ -5,7 +5,15 @@ Python - intro object georienteerd programmeren
 
 **Thijs Dregmans**
 
-Last updated on 2023-12-26
+Last updated on 2023-12-28
+
+## Branches
+
+This repository contains 3 branches besides `main`:
+
+- `niveau1` implements niveau 1 of the assignment.
+- `niveau2` implements niveau 2.
+- `niveau3` implements niveau 3.
 
 ## Course
 
