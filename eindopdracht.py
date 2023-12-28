@@ -222,7 +222,7 @@ class Car:
             self.turtle.up()
 
         self.turtle.goto(self.getPosition())
-
+        
         if not leaveTrail:
             self.turtle.down()
 
@@ -269,7 +269,7 @@ class Track:
 ####################################################################################
 
 class World:
-    def __init__ (self, track, cars):
+    def __init__ (self, cars):
         self.screen = tr.Screen ()
         self.screen.listen ()
         self.screen.bgpic('grass.png')
@@ -283,7 +283,7 @@ class World:
 
         self.cars = cars
 
-        self.track = track
+        self.track = Track("Main track", DEFAULT_TRACK_COORDS)
 
 
         for id in range(len(self.cars)):
@@ -331,10 +331,9 @@ class World:
 
 ####################################################################################
 
-# Run world with cars
-track = Track("Main track", DEFAULT_TRACK_COORDS)
+# Run world with cars            
 cars = [Car("red"), Car("blue")]
 
-world = World (track, cars)
+world = World (cars)
 
 world.run ()
