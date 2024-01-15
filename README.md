@@ -5,7 +5,7 @@ Python - intro object georienteerd programmeren
 
 **Thijs Dregmans**
 
-Last updated on 2023-12-26
+Last updated on 2024-01-15
 
 ## Course
 

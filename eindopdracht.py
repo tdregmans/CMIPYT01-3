@@ -21,7 +21,6 @@ ENABLE_FLYING_OF_TRACK = True
 
 DEFAULT_CAR_SIZE = 10
 CAR_TRACK_MARGIN = 5
-DEFAULT_TRACK_COORDS = [(-250, 250), (-100, 250), (-100, -100), (100, -100), (100, 250), (250, 250), (250, -250), (-250, -250)]
 
 CORNER_MARGIN = 10
 
@@ -29,6 +28,9 @@ MAX_SPEED = 30
 MAX_SPEED_IN_CORNER = 20
 MAX_ACCELERATION = 10
 
+SCOREBOARD_POSITION = (-250, 250)
+
+####################################################################################
 # Help functions
 
 def getOrientationRoad(road):
@@ -38,9 +40,11 @@ def getOrientationRoad(road):
     x = point2[1] - point1[1]
     y = point2[0] - point1[0]
 
+    # Calculate the orientation of the road
     return (math.atan2(x,y)/math.pi*180) - 90
 
 def getDistanceBetween(point1, point2):
+    # Calculate the distance between the two points
     return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
 ####################################################################################
@@ -168,20 +172,21 @@ class Car:
         if self.__speed > MAX_SPEED:
             self.__speed = MAX_SPEED
         
-        # calulate the next place on the track
+        # Calulate the next place on the track
 
+        # Get current road
         road = track.roads[self.__roadPointer]
         roadOrientation = getOrientationRoad(road)
-
+        # Set the orientation of the car the same as that of the current road
         self.turtle.tiltangle(roadOrientation)
 
         endOfRoad = track.roads[self.__roadPointer][1]
         if getDistanceBetween(self.__position, endOfRoad) <= CORNER_MARGIN:
-            # close to the end of the road, so put car on next road
+            # Car is close to the end of the road, so put car on next road
             if ENABLE_FLYING_OF_TRACK and self.__speed > MAX_SPEED_IN_CORNER:
-                # car has flown of the track
-                # idea: make the MAX_SPEED_IN_CORNER dependent on the angle of the two roads
-                print("Car went off road!") # Car stops on the track
+                # Car has flown of the track
+                # Continue on current trajectory
+                # Potential improvement: Make the MAX_SPEED_IN_CORNER dependent on the angle of the two roads
                 angle = math.radians(roadOrientation)
                 radius = self.__speed * deltaTime
 
@@ -190,20 +195,21 @@ class Car:
 
                 self.__position = (self.__position[0] + dy, self.__position[1] - dx)
             else:
+                # Car hasn't flown of the track
+                # Either because flying of the track is disabled or the car has a low speed
                 self.__roadPointer += 1
 
                 if self.__roadPointer > len(track.roads) - 1:
-                    # reset roadPointer if it points to the last road
+                    # Reset roadPointer if it points to non-existing road (because the loop is closed, go to the first road)
                     self.__roadPointer = 0
                 
-                print("put on new road")
                 startOfNewRoad = track.roads[self.__roadPointer][0]
                 self.__position = startOfNewRoad
 
         else:
-            # on normal road
+            # Car is not close to the end of the road, so continue driving
             # Calculate nex position on road
-            # https://stackoverflow.com/questions/35402609/point-on-circle-base-on-given-angle
+            # Uused resource: https://stackoverflow.com/questions/35402609/point-on-circle-base-on-given-angle
 
             angle = math.radians(roadOrientation)
             radius = self.__speed * deltaTime
@@ -229,17 +235,23 @@ class Car:
 ####################################################################################
 
 class Track:
-    def __init__(self, name, trackCoordinates):
+    def __init__(self, name, trackCoordinates = []):
         self.name = name
         self.corners = []
 
         self.roads = []
 
-        # build track with coords
-        for coord in trackCoordinates:
-            self.corners.append((coord[0], coord[1]))
+        if len(trackCoordinates) > 0:
+            # build track with coords
+            for coord in trackCoordinates:
+                self.corners.append((coord[0], coord[1]))
+    
+    def addCorner(self, x, y):
+        self.corners.append((x, y))
+
+    def setup(self):
         # Add first coord for a second time to close the track
-        self.corners.append((trackCoordinates[0][0], trackCoordinates[0][1]))
+        self.addCorner(self.corners[0][0], self.corners[0][1])
 
         # define roads
         for i in range(len(self.corners) - 1):
@@ -252,8 +264,9 @@ class Track:
     def draw(self, turtle, noOfCars):
         defaultPensize = turtle.pensize()
 
+        # Base the tracksize on the number of cars
         trackSize = noOfCars * (DEFAULT_CAR_SIZE + CAR_TRACK_MARGIN)
-        turtle.speed('fastest')
+        turtle.speed('fastest') # 'fastest' is a keyword in the turtle library
 
         turtle.up()
         turtle.pensize(trackSize)
@@ -268,8 +281,34 @@ class Track:
 
 ####################################################################################
 
+class Scoreboard:
+    def __init__(self, position):
+        self.__position = position
+
+        self.turtle = tr.Turtle()
+        self.turtle.up()
+
+
+    def draw(self, time):
+        self.turtle.down()
+        self.turtle.clear()
+        self.turtle.goto(self.__position)
+
+        self.turtle.write(
+            str(tm.strftime('%H', time)).zfill(2)
+            + ":"+str(tm.strftime('%M', time)).zfill(2)+":"
+            + str(tm.strftime('%S', time)).zfill(2),
+            font=("Arial Narrow", 35, "bold")
+        )
+        
+        self.turtle.up()
+
+####################################################################################
+
 class World:
     def __init__ (self, cars):
+        self.isSetUp = False
+        # Screen variables
         self.screen = tr.Screen ()
         self.screen.listen ()
         self.screen.bgpic('grass.png')
@@ -277,19 +316,37 @@ class World:
         self.screen.onkey (self.decelerateCar1, 'z')
         self.screen.onkey (self.accelerateCar2, 'k')
         self.screen.onkey (self.decelerateCar2, 'm')
+
+        # Finish setup of track with 'Return' key
+        self.screen.onkey(self.trackIsSetup, 'Return')
         self.time = tm.time ()
+        # Add point of mouse as corner on the track when clicked during setup of track
+        self.screen.onclick(self.addCorner)
 
         self.turtle = tr.Turtle()
 
         self.cars = cars
 
-        self.track = Track("Main track", DEFAULT_TRACK_COORDS)
+        self.track = Track("Main track")
 
+        while not self.isSetUp:
+            self.screen.update ()
+            tm.sleep(0.1)
+
+        self.track.setup()
 
         for id in range(len(self.cars)):
             car = self.cars[id]
             self.screen.register_shape(f'{car.getColor()}Car', car.getShape(id))
             car.assignShape()
+
+        self.scoreboard = Scoreboard(SCOREBOARD_POSITION)
+
+    def trackIsSetup(self):
+        self.isSetUp = True
+    
+    def addCorner(self, x, y):
+        self.track.addCorner(x, y)
         
     def accelerateCar1 (self):
         self.cars[0].accelerate()
@@ -304,9 +361,9 @@ class World:
         self.cars[1].decelerate()
         
     def run (self):
-
-        # standard corners
+        # Draw the track
         self.track.draw(self.turtle, len(self.cars))
+        # Put the cars on the track
         for car in self.cars:
             car.goto(self.track.corners[0]) # go to start (first point in track)
             car.draw(leaveTrail = False)
@@ -317,13 +374,18 @@ class World:
             self.time = tm.time ()
             self.deltaTime = self.time - self.oldTime
 
+            # foreach car:
             for car in self.cars:
                 print(f"{car.getColor()} car position: {car.getPosition()}")
                 print(f"{car.getColor()} car speed: {car.getSpeed()}")
                 print(f"{car.getColor()} car acceleration: {car.getAcceleration()}")
 
+                # Drive the car
                 car.drive(self.track, self.deltaTime)
                 car.draw()
+
+                # Draw the scoreboard with current time
+                self.scoreboard.draw(tm.localtime())
 
             print (self.deltaTime)
             self.screen.update ()
@@ -331,9 +393,8 @@ class World:
 
 ####################################################################################
 
-# Run world with cars            
+# Run world with red and blue cars            
 cars = [Car("red"), Car("blue")]
 
 world = World (cars)
-
 world.run ()
