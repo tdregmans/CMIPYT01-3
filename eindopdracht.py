@@ -3,7 +3,7 @@
 #### `Les 7`/`Eindopdracht.py`
 ####
 #### Thijs Dregmans 
-#### Gemaakt op 2023-12-28
+#### Gemaakt op 2024-01-15
 #### 
 #### Zie http://wiztech.nl/module_inleiding_programmeren_in_python/les_7_object_modellering/overig_lesmateriaal/eindopdracht/eindopdracht.pdf voor beschrijving
 ####
@@ -321,6 +321,8 @@ class World:
         self.screen.onkey(self.trackIsSetup, 'Return')
         self.time = tm.time ()
         # Add point of mouse as corner on the track when clicked during setup of track
+        self.screen.onclick(self.addCorner)
+
         self.screen.onclick(self.addCorner)
 
         self.turtle = tr.Turtle()
